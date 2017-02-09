@@ -1,2 +1,4 @@
 # springboot-cassandra-app
-An application to query Philadelphia Crime Data hosted on Cassandra using SpringBoot.
+A SpringBoot application to query Philadelphia Crime Data housed on Cassandra Cluster.
+- Demonsatrates integration of Spring framework with Cassandra for simple data query operations through REST Api's.
+- Also has Bootstrap+AngularJs for web-interface.
