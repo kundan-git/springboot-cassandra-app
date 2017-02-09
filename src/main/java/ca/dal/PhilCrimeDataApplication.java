@@ -7,7 +7,7 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 @SpringBootApplication
 public class PhilCrimeDataApplication  extends SpringBootServletInitializer{
-
+	
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(PhilCrimeDataApplication.class);

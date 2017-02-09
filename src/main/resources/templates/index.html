@@ -1,9 +1,356 @@
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <title>CSCI 5408 Assignment 2: Dalhousie University</title>
-<head>Philadelphia Crime Data Analysis</head>
+<head>
 
-<body>
-	<h1> This is the landing page.</h1>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous"></link>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+<script type="text/javascript" th:href="@{/js/app.js}" src="js/app.js"  ></script>
+</head>
+
+<body ng-app="queryApp" ng-controller="mainCtrl">
+	<div class="container">
+		<hr/>
+        <div class="row">            
+            <div class="col-md-12">
+                <h1>Philadelphia Crime Record Search Interface</h1>
+            </div>
+        </div>
+        <!-- /.row -->
+        <hr/>
+
+        
+        <div class="row">
+            <div class="col-lg-12">
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+
+        <!-- Content Row -->
+        <div class="row">
+            <div class="col-md-12">
+				<h5 style="color:blue">Query 1: Find a record by dc_key.</h5>
+				 <div class = "row">
+					 <div class = "col-lg-6">
+						<div class = "input-group">
+						   <input type = "text" class = "form-control" placeholder="DC Key" ng-model="q1_dc_key"></input>
+						   <span class = "input-group-btn">
+							  <button class = "btn btn-default" type = "button" style="cursor:pointer;" ng-click="executeQuery1()">
+								 Go!
+							  </button>
+						   </span>
+						</div><!-- /input-group -->
+					 </div><!-- /.col-lg-6 -->
+					 <div class = "col-lg-6">
+						Requested url: <mark>{{q1_request_url}}</mark>
+					 </div>
+				 </div><!--row-->
+				 <br/>
+				 <div class = "row" >
+					<div class="col-md-12">
+						<div style="color:red">{{q1_err_message}}</div>
+						<table>
+							<tr>
+								<td>Total Response Time:<mark>{{q1_total_time}} </mark></td>
+								<td>Cassandra Response Time: <mark>{{q1_cass_time}}</mark></td>
+							</tr>					
+						</table>
+					 </div>
+			
+					<div class = "col-lg-12">
+						<table class="table" ng-show="q1_resp">
+							<thead>
+								<tr style="font-size:12px">
+									<th>Police Districts</th>
+									<th>PSA</th>
+									<th>UCR General</th>
+									<th>UCR General Code</th>
+									<th>Dispatch Date Time</th>
+									<th>Location Block</th>
+									<th>Lat</th>
+									<th>Lon</th>
+								</tr>
+							</thead>
+							
+							<tbody>
+								<tr>
+									<td>{{q1_resp.police_districts}}</td>
+									<td>{{q1_resp.psa}}</td>
+									<td>{{q1_resp.ucr_general}}</td>
+									<td>{{q1_resp.text_general_code}}</td>
+									<td>{{q1_resp.dispatch_date_time}}</td>
+									<td>{{q1_resp.location_block}}</td>
+									<td>{{q1_resp.lat}}</td>
+									<td>{{q1_resp.lon}}</td>
+								</tr>
+							</tbody>
+							
+						</table>
+					</div>
+				 </div>
+            </div><!--class="col-md-12"-->
+            
+        </div>
+        <!-- /.row -->
+		
+        <hr/>
+		
+        <!-- Content Row -->
+        <div class="row">
+            <div class="col-md-12">
+                <h5 style="color:blue">Query 2: For a year, for a month, for a district, find all crime records.</h5>
+				
+				<div class = "row">
+					 <div class = "col-lg-6">
+						<div class = "input-group" >
+						<input type = "text" class = "form-control" placeholder="year" ng-model="q2_year"></input>
+						<input type = "text" class = "form-control" placeholder="month" ng-model="q2_month"></input>
+						<input type = "text" class = "form-control" placeholder="district" ng-model="q2_district"></input>
+						   
+							<span class = "input-group-btn">
+							  <button class = "btn btn-default" type = "button" style="cursor:pointer;" ng-click="executeQuery2()">
+								 Go!
+							  </button>
+						   </span>
+						</div><!-- /input-group -->
+					 </div><!-- /.col-lg-6 -->
+					 
+					 <div class = "col-lg-6">
+						Requested url: <mark>{{q2_request_url}}</mark>
+					 </div>
+				 </div><!--row-->
+				 
+				 <div class="row">
+					<div class="col-md-12">
+						<div style="color:red">{{q2_err_message}}</div>
+						<table>
+							<tr>
+								<td>Total Response Time:<mark>{{q2_total_time}} </mark></td>
+								<td>Cassandra Response Time: <mark>{{q2_cass_time}}</mark></td>
+							</tr>					
+						</table>
+					</div>
+				 </div>
+				 
+				 
+				 <div class="row">
+					<div class = "col-lg-12 tablecontainer">
+					<table class="table able-condensed table-striped table-responsive" ng-show="q2_resp" style="overflow-y: scroll;max-height:200px;">
+							<thead>
+								<tr style="font-size:12px">
+									<th>Police Districts</th>
+									<th>PSA</th>
+									<th>UCR General</th>
+									<th>UCR General Code</th>
+									<th>Dispatch Date Time</th>
+									<th>Location Block</th>
+									<th>Lat</th>
+									<th>Lon</th>
+								</tr>
+							</thead>
+							
+							<tbody style=" height: 100px;">
+								<tr ng-repeat="resp in q2_resp">
+									<td>{{resp.police_districts}}</td>
+									<td>{{resp.psa}}</td>
+									<td>{{resp.ucr_general}}</td>
+									<td>{{resp.text_general_code}}</td>
+									<td>{{resp.dispatch_date_time}}</td>
+									<td>{{resp.location_block}}</td>
+									<td>{{resp.lat}}</td>
+									<td>{{resp.lon}}</td>
+								</tr>
+							</tbody>
+							
+						</table>
+					
+					
+					</div>
+				 </div>
+            </div>
+        </div>
+        <!-- /.row -->
+        
+		<hr/>
+		
+        <!-- Content Row -->
+        <div class="row">
+			
+            <div class="col-md-12">
+                <h5 style="color:blue">Query 3: For a year,for a month, for a district, find all records for a particular UCR_General.</h5>
+				
+				<div class = "row">
+					  <div class = "col-lg-12">
+						<div class = "input-group">
+						<input type = "text" class = "form-control" placeholder="year" ng-model="q3_year"></input>
+						<input type = "text" class = "form-control" placeholder="month" ng-model="q3_month"></input>
+						   <input type = "text" class = "form-control" placeholder="district" ng-model="q3_district"></input>
+						   <input type = "text" class = "form-control" placeholder="UCR_General" ng-model="q3_ucr_general"></input>
+							<span class = "input-group-btn">
+							  <button class = "btn btn-default" type = "button" style="cursor:pointer;" ng-click="executeQuery3()">
+								 Go!
+							  </button>
+						   </span>
+						</div><!-- /input-group -->
+					 </div><!-- /.col-sm-3 -->
+				 </div><!--row-->
+				 
+				 <div class = "row">
+					<div class = "col-lg-12">
+						Requested url: <mark>{{q3_request_url}}</mark>
+					 </div>
+				</div>
+					
+				<div class = "row">					
+				 <div class="col-md-12">
+					<div style="color:red">{{q3_err_message}}</div>
+					<table>
+						<tr>
+							<td>Total Response Time:<mark>{{q3_total_time}} </mark></td>
+							<td>Cassandra Response Time: <mark>{{q3_cass_time}}</mark></td>
+						</tr>					
+					</table>
+				</div>
+				</div>
+				
+            </div>
+			
+			<div class="row">
+					<div class = "col-lg-12 tablecontainer">
+					<table class="table able-condensed table-striped table-responsive" ng-show="q3_resp" style="overflow-y: scroll;max-height:200px;">
+							<thead>
+								<tr style="font-size:12px">
+									<th>Police Districts</th>
+									<th>PSA</th>
+									<th>UCR General</th>
+									<th>UCR General Code</th>
+									<th>Dispatch Date Time</th>
+									<th>Location Block</th>
+									<th>Lat</th>
+									<th>Lon</th>
+								</tr>
+							</thead>
+							
+							<tbody style=" height: 100px;">
+								<tr ng-repeat="resp in q3_resp">
+									<td>{{resp.police_districts}}</td>
+									<td>{{resp.psa}}</td>
+									<td>{{resp.ucr_general}}</td>
+									<td>{{resp.text_general_code}}</td>
+									<td>{{resp.dispatch_date_time}}</td>
+									<td>{{resp.location_block}}</td>
+									<td>{{resp.lat}}</td>
+									<td>{{resp.lon}}</td>
+								</tr>
+							</tbody>
+							
+						</table>
+					
+					
+					</div>
+				 </div>
+			
+			
+        </div>
+        <!-- /.row -->
+        
+		
+		<hr/>
+		
+		
+        <!-- Content Row -->
+        <div class="row">
+		
+			
+			
+            <div class="col-md-12">
+               <h5 style="color:blue">Query 4: For a year, for a district, for a Psa,  find all  records.</h5>
+               <div class = "row">
+					  <div class = "col-lg-12">
+						<div class = "input-group">
+						<input type = "text" class = "form-control" placeholder="year" ng-model="q4_year"></input>
+						<input type = "text" class = "form-control" placeholder="district" ng-model="q4_district"></input>
+						   <input type = "text" class = "form-control" placeholder="PSA" ng-model="q4_psa"></input>
+							<span class = "input-group-btn">
+							  <button class = "btn btn-default" type = "button" style="cursor:pointer;" ng-click="executeQuery4()">
+								 Go!
+							  </button>
+						   </span>
+						</div><!-- /input-group -->
+					 </div><!-- /.col-sm-3 -->
+				 </div><!--row-->
+				 
+			<div class="col-md-12">
+				Requested url: <mark>{{q3_request_url}}</mark>
+			</div>
+			
+			<div class="col-md-12">
+				<div style="color:red">{{q4_err_message}}</div>
+				<table>
+					<tr>
+						<td>Total Response Time:<mark>{{q4_total_time}} </mark></td>
+						<td>Cassandra Response Time: <mark>{{q4_cass_time}}</mark></td>
+					</tr>					
+				</table>
+			</div>
+			
+            </div>
+			
+			
+			
+			<div class="row">
+					<div class = "col-lg-12 tablecontainer">
+					<table class="table able-condensed table-striped table-responsive" ng-show="q4_resp" style="overflow-y: scroll;max-height:200px;">
+							<thead>
+								<tr style="font-size:12px">
+									<th>Police Districts</th>
+									<th>PSA</th>
+									<th>UCR General</th>
+									<th>UCR General Code</th>
+									<th>Dispatch Date Time</th>
+									<th>Location Block</th>
+									<th>Lat</th>
+									<th>Lon</th>
+								</tr>
+							</thead>
+							
+							<tbody style=" height: 100px;">
+								<tr ng-repeat="resp in q4_resp">
+									<td>{{resp.police_districts}}</td>
+									<td>{{resp.psa}}</td>
+									<td>{{resp.ucr_general}}</td>
+									<td>{{resp.text_general_code}}</td>
+									<td>{{resp.dispatch_date_time}}</td>
+									<td>{{resp.location_block}}</td>
+									<td>{{resp.lat}}</td>
+									<td>{{resp.lon}}</td>
+								</tr>
+							</tbody>
+							
+						</table>
+					
+					
+					</div>
+				 </div>
+            
+        </div>
+        <!-- /.row -->
+
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p><a href="http://github.com/kundan-git/springboot-cassandra-app" target="_blank">Link to source</a></p>
+                </div>
+            </div>
+        </footer>
+
+    </div>    
+	
+	<script type="text/javascript" th:href="@{/js/jquery.js}" src="js/jquery.js"  ></script>
+	<script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 </body>
 
 </html>
